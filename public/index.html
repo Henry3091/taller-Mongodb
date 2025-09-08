@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sistema de Gestión Empresarial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen p-6" style="background-image: url('https://i.postimg.cc/T37GV5m5/17973908.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center;">
+
+
+  <header class="mb-8 text-center">
+    <img src="https://i.postimg.cc/bwR3G17k/Imagen-Empresarial.jpg" alt="Logo de la empresa" class="mx-auto w-32 h-auto mb-4" />
+    <h1 class="text-4xl font-bold text-blue-700 mb-2">Sistema de Gestión Empresarial</h1>
+    <p class="text-lg text-gray-600">Simulador de roles y acciones con procedimientos almacenados y triggers</p>
+    <a href="/listar.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow transition">Ver Listas</a>
+  </header>
+
+  <a href="/listar.html"
+   class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-5 rounded-full shadow-lg transition">
+  Ver Listas
+</a>
+
+  <main class="max-w-4xl mx-auto space-y-10">
+
+    <!-- Selección de Rol -->
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Seleccionar Rol</h2>
+      <select id="rol" class="w-full md:w-1/3 p-2 border border-gray-300 rounded">
+        <option value="admin">Admin</option>
+        <option value="vendedor" selected>Vendedor</option>
+        <option value="analista">Analista</option>
+        <option value="auditor">Auditor</option>
+      </select>
+    </section>
+
+    
+    <!-- Insertar Cliente -->
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Insertar Cliente</h2>
+      <form id="formCliente" class="space-y-4">
+        <input type="text" id="nombreCliente" placeholder="Nombre" required class="w-full p-2 border rounded" />
+        <input type="email" id="emailCliente" placeholder="Email" required class="w-full p-2 border rounded" />
+        <input type="text" id="telefonoCliente" placeholder="Teléfono" required class="w-full p-2 border rounded" />
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">Insertar Cliente</button>
+      </form>
+    </section>
+
+    <!-- Insertar Vendedor -->
+      <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Insertar Vendedor</h2>
+       <form id="formVendedor" class="space-y-4">
+       <input type="text" id="nombreVendedor" placeholder="Nombre" required class="w-full p-2 border rounded" />
+       <input type="email" id="correoVendedor" placeholder="Correo" required class="w-full p-2 border rounded" />
+      <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded">Insertar Vendedor</button>
+       </form>
+        </section>
+
+
+    <!-- Insertar Producto -->
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Insertar Producto</h2>
+      <form id="formProducto" class="space-y-4">
+        <input type="text" id="nombreProducto" placeholder="Nombre" required class="w-full p-2 border rounded" />
+        <input type="number" step="0.01" id="precioProducto" placeholder="Precio" required class="w-full p-2 border rounded" />
+        <input type="number" id="stockProducto" placeholder="Stock" required class="w-full p-2 border rounded" />
+        <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded">Insertar Producto</button>
+      </form>
+    </section>
+
+    <!-- Registrar Venta Completa -->
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Registrar Venta Completa</h2>
+      <form id="formVenta" class="space-y-4">
+        <input type="date" id="fechaVenta" required class="w-full p-2 border rounded" />
+        <input type="number" id="clienteId" placeholder="ID Cliente" required class="w-full p-2 border rounded" />
+        <input type="number" id="vendedorId" placeholder="ID Vendedor" required class="w-full p-2 border rounded" />
+        <input type="number" id="productoId" placeholder="ID Producto" required class="w-full p-2 border rounded" />
+        <input type="number" id="cantidad" placeholder="Cantidad" required class="w-full p-2 border rounded" />
+        <input type="number" step="0.01" id="subtotal" placeholder="Subtotal" required class="w-full p-2 border rounded" />
+        <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white py-2 px-4 rounded">Registrar Venta</button>
+      </form>
+    </section>
+
+    <!-- Auditoría -->
+    <section class="bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-semibold mb-4">Auditoría de Clientes</h2>
+      <button onclick="verAuditoria()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded mb-4">Ver Auditoría</button>
+      <pre id="auditoriaResultado" class="bg-gray-100 p-4 border rounded max-h-64 overflow-auto"></pre>
+    </section>
+
+    <section class="bg-white p-6 rounded-lg shadow-md text-center">
+  <h2 class="text-xl font-semibold mb-4 text-gray-700">¿Quieres consultar las listas?</h2>
+  <a href="/listar.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded shadow transition">Ir a Listas</a>
+</section>
+
+
+  </main>
+
+  <script>
+    function getRol() {
+      return document.getElementById('rol').value;
+    }
+
+    // Insertar Cliente
+    document.getElementById('formCliente').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        nombre: document.getElementById('nombreCliente').value,
+        email: document.getElementById('emailCliente').value,
+        telefono: document.getElementById('telefonoCliente').value
+      };
+      const res = await fetch('/clientes/insertar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-role': getRol()
+        },
+        body: JSON.stringify(data)
+      });
+      alert(JSON.stringify(await res.json()));
+    });
+
+    // Insertar Producto
+    document.getElementById('formProducto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        nombre: document.getElementById('nombreProducto').value,
+        precio: parseFloat(document.getElementById('precioProducto').value),
+        stock: parseInt(document.getElementById('stockProducto').value)
+      };
+      const res = await fetch('/productos/insertar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-role': getRol()
+        },
+        body: JSON.stringify(data)
+      });
+      alert(JSON.stringify(await res.json()));
+    });
+    // Insertar Vendedor (¡este debe estar aquí!)
+    document.getElementById('formVendedor').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        nombre: document.getElementById('nombreVendedor').value,
+        correo: document.getElementById('correoVendedor').value
+      };
+      const res = await fetch('/vendedores/insertar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-role': getRol()
+        },
+        body: JSON.stringify(data)
+      });
+      alert(JSON.stringify(await res.json()));
+    });
+
+    // Registrar Venta
+    document.getElementById('formVenta').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        fecha: document.getElementById('fechaVenta').value,
+        cliente_id: parseInt(document.getElementById('clienteId').value),
+        vendedor_id: parseInt(document.getElementById('vendedorId').value),
+        detalles: [
+          {
+            producto_id: parseInt(document.getElementById('productoId').value),
+            cantidad: parseInt(document.getElementById('cantidad').value),
+            subtotal: parseFloat(document.getElementById('subtotal').value)
+          }
+        ]
+      };
+      const res = await fetch('/ventas/venta-completa', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-role': getRol()
+        },
+        body: JSON.stringify(data)
+      });
+      alert(JSON.stringify(await res.json()));
+    });
+
+    // Auditoría
+    async function verAuditoria() {
+      const res = await fetch('/auditoria/clientes', {
+        headers: { 'x-role': getRol() }
+      });
+      const data = await res.json();
+      document.getElementById('auditoriaResultado').textContent = JSON.stringify(data, null, 2);
+      
+    }
+  </script>
+
+</body>
+</html>

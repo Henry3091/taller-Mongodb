@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Listado de Tablas - Gestión Empresarial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen p-6" style="background-image: url('https://i.postimg.cc/T37GV5m5/17973908.jpg'); background-size: cover; background-repeat: no-repeat; background-position: center;">
+
+  <p class="w-full max-w-5xl mb-6 text-left">
+    <a href="/" class="text-indigo-600 hover:text-indigo-800 font-semibold">⬅ Volver al Inicio</a>
+  </p>
+
+  <h1 class="text-4xl font-bold mb-8 text-indigo-600 flex items-center gap-2">
+    📋 Listado de Tablas del Sistema
+  </h1>
+
+  <!-- Clientes -->
+  <section class="w-full max-w-5xl mb-10 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Clientes</h2>
+    <button onclick="cargarClientes()" class="mb-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">Cargar Clientes</button>
+    <div id="msg-clientes" class="mb-2 text-sm italic text-gray-600"></div>
+    <div class="overflow-x-auto rounded border border-gray-300">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-indigo-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">ID</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Nombre</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Email</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Teléfono</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-clientes" class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Productos -->
+  <section class="w-full max-w-5xl mb-10 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Productos</h2>
+    <button onclick="cargarProductos()" class="mb-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">Cargar Productos</button>
+    <div id="msg-productos" class="mb-2 text-sm italic text-gray-600"></div>
+    <div class="overflow-x-auto rounded border border-gray-300">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-indigo-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">ID</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Nombre</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Precio</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Stock</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-productos" class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Vendedores -->
+  <section class="w-full max-w-5xl mb-10 bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Vendedores</h2>
+    <button onclick="cargarVendedores()" class="mb-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">Cargar Vendedores</button>
+    <div id="msg-vendedores" class="mb-2 text-sm italic text-gray-600"></div>
+    <div class="overflow-x-auto rounded border border-gray-300">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-indigo-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">ID</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Nombre</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Email</th>
+            <th class="px-4 py-2 text-left text-indigo-800 font-medium">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-vendedores" class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </section>
+
+
+
+  <script>
+    function mostrarMensaje(id, mensaje, tipo = 'normal') {
+      const elem = document.getElementById(id);
+      elem.textContent = mensaje;
+      elem.className = tipo === 'error' ? 'text-red-600 font-semibold' : 'italic text-gray-600 text-sm';
+    }
+
+    function obtenerPrecioDecimal(precio) {
+      if (typeof precio === 'object' && precio !== null && precio.$numberDecimal) {
+        return parseFloat(precio.$numberDecimal).toFixed(2);
+      } else if (typeof precio === 'number') {
+        return parseFloat(precio).toFixed(2);
+      }
+      return '0.00';
+    }
+
+    // ===================== CLIENTES =======================
+    async function cargarClientes() {
+      mostrarMensaje('msg-clientes', 'Cargando...');
+      const tbody = document.getElementById('tbody-clientes');
+      tbody.innerHTML = '';
+      try {
+        const res = await fetch('/clientes/listar');
+        if (!res.ok) throw new Error('Error al cargar clientes');
+        const data = await res.json();
+        if (data.length === 0) {
+          mostrarMensaje('msg-clientes', 'No hay clientes para mostrar.');
+          return;
+        }
+        mostrarMensaje('msg-clientes', '');
+        tbody.innerHTML = data.map(c => `
+          <tr class="hover:bg-indigo-50 transition">
+            <td class="px-4 py-2">${c._id}</td>
+            <td class="px-4 py-2">${c.nombre}</td>
+            <td class="px-4 py-2">${c.email}</td>
+            <td class="px-4 py-2">${c.telefono}</td>
+            <td class="px-4 py-2 flex gap-2">
+              <button onclick="editarCliente('${c._id}', '${c.nombre}', '${c.email}', '${c.telefono}')" class="text-blue-600 hover:underline">Editar</button>
+              <button onclick="eliminarCliente('${c._id}')" class="text-red-600 hover:underline">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        mostrarMensaje('msg-clientes', '', 'normal');
+        tbody.innerHTML = `<tr><td colspan="5" class="text-red-600 font-semibold px-4 py-2">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    function editarCliente(id, nombre, email, telefono) {
+      const nuevoNombre = prompt("Editar nombre:", nombre);
+      const nuevoEmail = prompt("Editar email:", email);
+      const nuevoTelefono = prompt("Editar teléfono:", telefono);
+      if (nuevoNombre && nuevoEmail && nuevoTelefono) {
+        fetch(`/clientes/actualizar/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: nuevoNombre, email: nuevoEmail, telefono: nuevoTelefono })
+        }).then(r => {
+          if (!r.ok) throw new Error('Error al actualizar');
+          return r.json();
+        }).then(() => {
+          alert("Cliente actualizado.");
+          cargarClientes();
+        }).catch(err => alert(err.message));
+      }
+    }
+
+    function eliminarCliente(id) {
+      if (confirm("¿Eliminar este cliente?")) {
+        fetch(`/clientes/eliminar/${id}`, { method: 'DELETE' })
+          .then(r => {
+            if (!r.ok) throw new Error('Error al eliminar');
+            return r.json();
+          })
+          .then(() => {
+            alert("Cliente eliminado.");
+            cargarClientes();
+          })
+          .catch(err => alert(err.message));
+      }
+    }
+
+    // ===================== PRODUCTOS =======================
+    async function cargarProductos() {
+      mostrarMensaje('msg-productos', 'Cargando...');
+      const tbody = document.getElementById('tbody-productos');
+      tbody.innerHTML = '';
+      try {
+        const res = await fetch('/productos/listar');
+        if (!res.ok) throw new Error('Error al cargar productos');
+        const data = await res.json();
+        if (data.length === 0) {
+          mostrarMensaje('msg-productos', 'No hay productos para mostrar.');
+          return;
+        }
+        mostrarMensaje('msg-productos', '');
+        tbody.innerHTML = data.map(p => `
+          <tr class="hover:bg-indigo-50 transition">
+            <td class="px-4 py-2">${p._id}</td>
+            <td class="px-4 py-2">${p.nombre}</td>
+            <td class="px-4 py-2">$${obtenerPrecioDecimal(p.precio)}</td>
+            <td class="px-4 py-2">${p.stock ?? '-'}</td>
+            <td class="px-4 py-2 flex gap-2">
+              <button onclick="editarProducto('${p._id}', '${p.nombre}', '${obtenerPrecioDecimal(p.precio)}', '${p.stock ?? 0}')" class="text-blue-600 hover:underline">Editar</button>
+              <button onclick="eliminarProducto('${p._id}')" class="text-red-600 hover:underline">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        mostrarMensaje('msg-productos', '', 'normal');
+        tbody.innerHTML = `<tr><td colspan="5" class="text-red-600 font-semibold px-4 py-2">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    function editarProducto(id, nombre, precio, stock) {
+      const nuevoNombre = prompt("Editar nombre:", nombre);
+      const nuevoPrecio = prompt("Editar precio:", precio);
+      const nuevoStock = prompt("Editar stock:", stock);
+      if (nuevoNombre && nuevoPrecio && nuevoStock) {
+        fetch(`/productos/actualizar/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: nuevoNombre, precio: parseFloat(nuevoPrecio), stock: parseInt(nuevoStock) })
+        }).then(r => {
+          if (!r.ok) throw new Error('Error al actualizar');
+          return r.json();
+        }).then(() => {
+          alert("Producto actualizado.");
+          cargarProductos();
+        }).catch(err => alert(err.message));
+      }
+    }
+
+    function eliminarProducto(id) {
+      if (confirm("¿Eliminar este producto?")) {
+        fetch(`/productos/eliminar/${id}`, { method: 'DELETE' })
+          .then(r => {
+            if (!r.ok) throw new Error('Error al eliminar');
+            return r.json();
+          })
+          .then(() => {
+            alert("Producto eliminado.");
+            cargarProductos();
+          })
+          .catch(err => alert(err.message));
+      }
+    }
+
+    // ===================== VENDEDORES =======================
+    async function cargarVendedores() {
+      mostrarMensaje('msg-vendedores', 'Cargando...');
+      const tbody = document.getElementById('tbody-vendedores');
+      tbody.innerHTML = '';
+      try {
+        const res = await fetch('/vendedores/listar');
+        if (!res.ok) throw new Error('Error al cargar vendedores');
+        const data = await res.json();
+        if (data.length === 0) {
+          mostrarMensaje('msg-vendedores', 'No hay vendedores para mostrar.');
+          return;
+        }
+        mostrarMensaje('msg-vendedores', '');
+        tbody.innerHTML = data.map(v => `
+          <tr class="hover:bg-indigo-50 transition">
+            <td class="px-4 py-2">${v._id}</td>
+            <td class="px-4 py-2">${v.nombre}</td>
+            <td class="px-4 py-2">${v.email}</td>
+            <td class="px-4 py-2 flex gap-2">
+              <button onclick="editarVendedor('${v._id}', '${v.nombre}', '${v.email}')" class="text-blue-600 hover:underline">Editar</button>
+              <button onclick="eliminarVendedor('${v._id}')" class="text-red-600 hover:underline">Eliminar</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        mostrarMensaje('msg-vendedores', '', 'normal');
+        tbody.innerHTML = `<tr><td colspan="4" class="text-red-600 font-semibold px-4 py-2">Error: ${e.message}</td></tr>`;
+      }
+    }
+
+    function editarVendedor(id, nombre, email) {
+      const nuevoNombre = prompt("Editar nombre:", nombre);
+      const nuevoEmail = prompt("Editar email:", email);
+      if (nuevoNombre && nuevoEmail) {
+        fetch(`/vendedores/actualizar/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre: nuevoNombre, email: nuevoEmail })
+        }).then(r => {
+          if (!r.ok) throw new Error('Error al actualizar');
+          return r.json();
+        }).then(() => {
+          alert("Vendedor actualizado.");
+          cargarVendedores();
+        }).catch(err => alert(err.message));
+      }
+    }
+
+    function eliminarVendedor(id) {
+      if (confirm("¿Eliminar este vendedor?")) {
+        fetch(`/vendedores/eliminar/${id}`, { method: 'DELETE' })
+          .then(r => {
+            if (!r.ok) throw new Error('Error al eliminar');
+            return r.json();
+          })
+          .then(() => {
+            alert("Vendedor eliminado.");
+            cargarVendedores();
+          })
+          .catch(err => alert(err.message));
+      }
+    }
+    async function cargarVentasCliente() {
+  mostrarMensaje('msg-ventas-cliente', 'Cargando...');
+  const tbody = document.getElementById('tbody-ventas-cliente');
+  tbody.innerHTML = '';
+  try {
+    const res = await fetch('/ventas/vistas/ventas-cliente');
+    if (!res.ok) throw new Error('Error al cargar vista ventas por cliente');
+    const data = await res.json();
+    if (data.length === 0) {
+      mostrarMensaje('msg-ventas-cliente', 'No hay datos para mostrar.');
+      return;
+    }
+    mostrarMensaje('msg-ventas-cliente', '');
+    tbody.innerHTML = data.map(vc => `
+      <tr class="hover:bg-indigo-50 transition">
+        <td class="px-4 py-2">${vc.cliente || 'Desconocido'}</td>
+        <td class="px-4 py-2">${new Date(vc.fecha).toLocaleDateString()}</td>
+        <td class="px-4 py-2">${vc.producto_id ?? '-'}</td>
+        <td class="px-4 py-2">${vc.cantidad ?? '-'}</td>
+        <td class="px-4 py-2">$${obtenerPrecioDecimal(vc.subtotal)}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    mostrarMensaje('msg-ventas-cliente', '', 'normal');
+    tbody.innerHTML = `<tr><td colspan="5" class="text-red-600 font-semibold px-4 py-2">Error: ${e.message}</td></tr>`;
+  }
+}
+
+async function cargarProductosBajoStock() {
+  mostrarMensaje('msg-productos-bajo-stock', 'Cargando...');
+  const tbody = document.getElementById('tbody-productos-bajo-stock');
+  tbody.innerHTML = '';
+  try {
+    const res = await fetch('/vistas/productos-bajo-stock');
+    if (!res.ok) throw new Error('Error al cargar vista productos bajo stock');
+    const data = await res.json();
+    if (data.length === 0) {
+      mostrarMensaje('msg-productos-bajo-stock', 'No hay datos para mostrar.');
+      return;
+    }
+    mostrarMensaje('msg-productos-bajo-stock', '');
+    tbody.innerHTML = data.map(pbs => `
+      <tr class="hover:bg-indigo-50 transition">
+        <td class="px-4 py-2">${pbs._id}</td>
+        <td class="px-4 py-2">${pbs.nombre}</td>
+        <td class="px-4 py-2">$${obtenerPrecioDecimal(pbs.precio)}</td>
+        <td class="px-4 py-2">${pbs.stock ?? '-'}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    mostrarMensaje('msg-productos-bajo-stock', '', 'normal');
+    tbody.innerHTML = `<tr><td colspan="4" class="text-red-600 font-semibold px-4 py-2">Error: ${e.message}</td></tr>`;
+  }
+}
+
+    
+  </script>
+  <!-- Vista: Ventas por Cliente -->
+<section class="w-full max-w-5xl mb-10 bg-white rounded-lg shadow-md p-6">
+  <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Vista: Ventas por Cliente</h2>
+  <button onclick="cargarVentasCliente()" class="mb-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">Cargar Vista</button>
+  <div id="msg-ventas-cliente" class="mb-2 text-sm italic text-gray-600"></div>
+  <div class="overflow-x-auto rounded border border-gray-300">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-indigo-100">
+        <tr>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Cliente</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Fecha</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Producto ID</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Cantidad</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-ventas-cliente" class="bg-white divide-y divide-gray-200"></tbody>
+    </table>
+  </div>
+</section>
+<!-- Vista: Productos con Bajo Stock -->
+<section class="w-full max-w-5xl mb-10 bg-white rounded-lg shadow-md p-6">
+  <h2 class="text-2xl font-semibold mb-4 text-indigo-700">Vista: Productos con Bajo Stock</h2>
+  <button onclick="cargarProductosBajoStock()" class="mb-4 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition">Cargar Vista</button>
+  <div id="msg-productos-bajo-stock" class="mb-2 text-sm italic text-gray-600"></div>
+  <div class="overflow-x-auto rounded border border-gray-300">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-indigo-100">
+        <tr>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">ID</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Nombre</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Precio</th>
+          <th class="px-4 py-2 text-left text-indigo-800 font-medium">Stock</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-productos-bajo-stock" class="bg-white divide-y divide-gray-200"></tbody>
+    </table>
+  </div>
+</section>
+  <p class="mb-10">
+    <a href="/" class="text-indigo-600 hover:text-indigo-800 font-semibold">⬅ Volver al Inicio</a>
+  </p>
+
+</body>
+</html>
